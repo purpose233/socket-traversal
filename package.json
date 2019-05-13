@@ -1,0 +1,26 @@
+{
+  "name": "socket-traversal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/purpose233/socket-traversal.git"
+  },
+  "author": "purpose233",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/purpose233/socket-traversal/issues"
+  },
+  "homepage": "https://github.com/purpose233/socket-traversal#readme",
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "text-encoding": "^0.7.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "common": {
+    "bindPort": 7000,
+    "dashBoardPort": 7001,
+    "clientPort": 8000
+  },
+  "udp": [
+    {
+      "listenPort": 7002
+    }
+  ]
+}

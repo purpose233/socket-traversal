@@ -1,0 +1,12 @@
+{
+  "common": {
+    "serverAddress": "127.0.0.1",
+    "serverPort": 7000
+  },
+  "udp": [
+    {
+      "localPort": 11112,
+      "remotePort": 7002
+    }
+  ]
+}
