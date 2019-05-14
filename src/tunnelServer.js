@@ -6,22 +6,24 @@ import {logSocketData} from './common/log';
 import {EventType, SocketType,
   TunnelClientInfoType, TunnelServerInfoType} from './common/config';
 
-const pipeRemoteAndTunnelSocket = (remoteSocket, tunnelSocket, uuid, srcPort) => {
+const pipeRemoteSocketAndTunnelSocket = (remoteSocket, tunnelSocket, uuid, bindPort) => {
   remoteSocket.on('data', (data) => {
+    logSocketData(data, 'Remote');
     const info = {
-      srcPort, uuid,
+      bindPort, uuid,
       type: TunnelClientInfoType.DATA,
       socketType: SocketType.TCP
     };
     sendWithMetaData(tunnelSocket, info, data);
   });
   tunnelSocket.on('data', (data) => {
+    logSocketData(data, 'Tunnel');
     const {metaData} = parseMsgWithMetaData(data);
     sendMetaData(remoteSocket, metaData);
   });
 };
 
-export const createTunnelServer = (eventEmitter, bindPort) => {
+export const createTunnelServer = (eventEmitter, listenPort) => {
   // TODO: note that the amount of tunnelSocket might reach the limit.
 
   let tcpControlSocket = null;
@@ -39,7 +41,7 @@ export const createTunnelServer = (eventEmitter, bindPort) => {
     // are through eventEmitter. So, only message from local server will reach.
     socket.on('data', (data) => {
       logSocketData(data, 'Tunnel');
-      const {info, metaData} = parseMsgWithMetaData(data);
+      const {info} = parseMsgWithMetaData(data);
       const uuid = info.uuid;
       switch (info.type) {
         case TunnelServerInfoType.CONTROL:
@@ -58,7 +60,8 @@ export const createTunnelServer = (eventEmitter, bindPort) => {
         case TunnelServerInfoType.DATA:
           if (info.socketType === SocketType.TCP) {
             const remoteSocketInfo = remoteTcpSocketInfos[uuid];
-            pipeRemoteAndTunnelSocket(remoteSocketInfo.socket, socket, uuid, remoteSocketInfo.port);
+            pipeRemoteSocketAndTunnelSocket(remoteSocketInfo.socket, socket,
+              uuid, remoteSocketInfo.port);
             socket.resume();
           } else if (info.socketType === SocketType.UDP) {
             // TODO
@@ -68,14 +71,14 @@ export const createTunnelServer = (eventEmitter, bindPort) => {
     });
   });
 
-  eventEmitter.on(EventType.RECEIVE_REMOTE_CONNECTION, (socketType, src, srcPort) => {
+  eventEmitter.on(EventType.RECEIVE_REMOTE_CONNECTION, (socketType, src, bindPort) => {
     // When socket type is TCP, src is socket object.
     //  else src is address object.
     if (socketType === SocketType.TCP) {
       const socketId = uuidv4();
       const remoteSocket = src;
       remoteTcpSocketInfos[socketId] = {
-        port: srcPort,
+        port: bindPort,
         socket: remoteSocket,
       };
       remoteSocket.on('close', () => {
@@ -84,7 +87,7 @@ export const createTunnelServer = (eventEmitter, bindPort) => {
       remoteSocket.pause();
       const info = {
         type: TunnelClientInfoType.CREATE_TUNNEL,
-        srcPort,
+        bindPort,
         socketType: SocketType.TCP,
         uuid: socketId
       };
@@ -94,6 +97,6 @@ export const createTunnelServer = (eventEmitter, bindPort) => {
     }
   });
 
-  tunnelServer.listen(bindPort, '127.0.0.1');
+  tunnelServer.listen(listenPort, '127.0.0.1');
   return tunnelServer;
 };

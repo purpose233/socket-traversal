@@ -1,7 +1,7 @@
 {
   "common": {
-    "serverAddress": "127.0.0.1",
-    "remotePort": 7000
+    "serverIP": "127.0.0.1",
+    "serverPort": 7000
   },
   "tcp": {
     "proxies": [

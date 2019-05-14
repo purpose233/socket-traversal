@@ -53,14 +53,14 @@ export const parseMsgWithMetaData = (msg) => {
 //   source.send(info, 0, info.length, address.port, address.ip);
 // };
 
-export const sendWithMetaData = (dst, info, metaData) => {
+export const sendWithMetaData = (sender, info, metaData) => {
   // TODO: might add udp send
   metaData = metaData instanceof Uint8Array ? decoder.decode(metaData) : metaData;
   const msg = JSON.stringify(info) + (metaData ? '|' + metaData : '');
-  dst.write(msg);
+  sender.write(msg);
 };
 
-export const sendMetaData = (dst, metaData) => {
+export const sendMetaData = (sender, metaData) => {
   metaData = metaData instanceof Uint8Array ? decoder.decode(metaData) : metaData;
-  dst.write(metaData);
+  sender.write(metaData);
 };
