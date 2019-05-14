@@ -1,4 +1,5 @@
 const Net = require('net');
+const uuidv4 = require('uuid/v4');
 import {handleSocketError, parseMsgWithMetaData,
   sendMetaData, sendWithMetaData} from './common/socket';
 import {logSocketData} from './common/log';
@@ -20,12 +21,8 @@ const pipeRemoteAndTunnelSocket = (remoteSocket, tunnelSocket, uuid, srcPort) =>
   });
 };
 
-export const createTunnelServer = (bindPort, eventEmitter) => {
-  // TODO: note that the amount of tunnelSocket might reach the limit,
-  //  and UUID might be too large.
-
-  // TODO: maybe use separated UUID for tcp and udp.
-  let UUID = 0;
+export const createTunnelServer = (eventEmitter, bindPort) => {
+  // TODO: note that the amount of tunnelSocket might reach the limit.
 
   let tcpControlSocket = null;
   let udpControlSocket = null;
@@ -71,11 +68,11 @@ export const createTunnelServer = (bindPort, eventEmitter) => {
     });
   });
 
-  eventEmitter.on(EventType.FROM_REMOTE, (socketType, src, srcPort) => {
+  eventEmitter.on(EventType.RECEIVE_REMOTE_CONNECTION, (socketType, src, srcPort) => {
     // When socket type is TCP, src is socket object.
     //  else src is address object.
     if (socketType === SocketType.TCP) {
-      const socketId = UUID++;
+      const socketId = uuidv4();
       const remoteSocket = src;
       remoteTcpSocketInfos[socketId] = {
         port: srcPort,

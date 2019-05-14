@@ -4,8 +4,7 @@ export const SocketType = {
 };
 
 export const EventType = {
-  FROM_REMOTE: 'remote',
-  FROM_TUNNEL: 'tunnel'
+  RECEIVE_REMOTE_CONNECTION: 'remote'
 };
 
 export const TunnelServerInfoType = {
