@@ -1,0 +1,22 @@
+{
+  "common": {
+    "serverAddress": "127.0.0.1",
+    "remotePort": 7000
+  },
+  "tcp": {
+    "proxies": [
+      {
+        "localPort": 11111,
+        "remotePort": 7005
+      }
+    ]
+  },
+  "udp": {
+    "proxies": [
+      {
+        "localPort": 11112,
+        "remotePort": 7010
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 const dgram = require('dgram');
 const _ = require('lodash');
-import config from './udpClient.json';
+import config from '../test/client.json';
 import {createUdpSocket} from './common/socket';
 
 // TODO: need to parse config

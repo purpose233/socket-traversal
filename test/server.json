@@ -1,0 +1,21 @@
+{
+  "common": {
+    "dashBoardPort": 7000
+  },
+  "tcp": {
+    "bindPort": 7001,
+    "proxies": [
+      {
+        "listenPort": 7005
+      }
+    ]
+  },
+  "udp": {
+    "bindPort": 7002,
+    "proxies": [
+      {
+        "listenPort": 7010
+      }
+    ]
+  }
+}

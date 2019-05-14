@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/purpose233/socket-traversal#readme",
   "dependencies": {
+    "commander": "^2.20.0",
     "lodash": "^4.17.11",
     "text-encoding": "^0.7.0"
   }
