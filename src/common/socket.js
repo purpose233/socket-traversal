@@ -1,6 +1,6 @@
 const dgram = require('dgram');
 const TextEncoding = require('text-encoding');
-import {SocketType, TunnelServerInfoType} from "./config";
+import {TunnelServerInfoType} from './constant';
 
 const decoder = new TextEncoding.TextDecoder('utf-8');
 

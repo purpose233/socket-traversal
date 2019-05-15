@@ -1,6 +1,6 @@
 const Net = require('net');
 import {handleSocketError} from './common/socket';
-import {EventType, SocketType} from './common/config';
+import {EventType, SocketType} from './common/constant';
 
 const createRemoteTcpServer = (eventEmitter, listenPort) => {
   const remoteServer = Net.createServer(function (socket) {

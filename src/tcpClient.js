@@ -8,7 +8,7 @@ import {
   createClientTunnelSocket
 } from './common/socket';
 import {logSocketData} from './common/log';
-import {SocketType, TunnelClientInfoType, TunnelServerInfoType} from './common/config';
+import {SocketType, TunnelClientInfoType, TunnelServerInfoType} from './common/constant';
 
 const pipeTunnelAndDataTcpSocket = (tunnelSocket, dataSocket, uuid, bindPort) => {
   tunnelSocket.on('data', (data) => {

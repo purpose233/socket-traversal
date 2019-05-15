@@ -1,7 +1,7 @@
-import {ConfigErrors, logConfigError} from "./common/log";
-
-const fs = require("fs");
+const fs = require('fs');
 const program = require('commander');
+import {ConfigErrors, logConfigError} from './common/log';
+
 program.version('0.0.1');
 
 // program
@@ -22,6 +22,8 @@ try {
 } catch (e) {
   logConfigError(ConfigErrors.INVALID_CONFIG);
 }
+
+const tcpProxies = metaConfig;
 
 // TODO: check whether the config is valid
 

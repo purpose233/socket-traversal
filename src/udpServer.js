@@ -1,6 +1,6 @@
 const _ = require('lodash');
 import {createUdpSocket, sendUdpMetaData} from './common/socket';
-import {EventType, SocketType} from './common/config';
+import {EventType, SocketType} from './common/constant';
 import {logSocketData} from './common/log';
 
 const createRemoteUdpServer = (eventEmitter, listenPort) => {

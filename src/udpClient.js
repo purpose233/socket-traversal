@@ -4,10 +4,10 @@ import {
   createUdpSocket,
   handleSocketError,
   parseMsgWithMetaData,
-  sendTcpInfo, 
+  sendTcpInfo,
   sendUdpMetaData
 } from './common/socket';
-import {SocketType, TunnelClientInfoType, TunnelServerInfoType} from './common/config';
+import {SocketType, TunnelClientInfoType, TunnelServerInfoType} from './common/constant';
 import {logSocketData} from './common/log';
 
 // TODO: improve the random algorithm

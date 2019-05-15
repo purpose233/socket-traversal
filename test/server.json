@@ -1,21 +1,15 @@
 {
   "common": {
-    "dashBoardPort": 7000
+    "bindPort": 7001
   },
-  "tcp": {
-    "bindPort": 7001,
-    "proxies": [
-      {
-        "listenPort": 7005
-      }
-    ]
-  },
-  "udp": {
-    "bindPort": 7002,
-    "proxies": [
-      {
-        "listenPort": 7010
-      }
-    ]
-  }
+  "tcp": [
+    {
+      "listenPort": 7005
+    }
+  ],
+  "udp": [
+    {
+      "listenPort": 7010
+    }
+  ]
 }

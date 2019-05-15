@@ -4,7 +4,7 @@ import {handleSocketError, parseMsgWithMetaData,
   sendTcpMetaData, sendTcpInfo} from './common/socket';
 import {logSocketData} from './common/log';
 import {EventType, SocketType,
-  TunnelClientInfoType, TunnelServerInfoType} from './common/config';
+  TunnelClientInfoType, TunnelServerInfoType} from './common/constant';
 
 const pipeRemoteAndTunnelSocket = (remoteSocket, tunnelSocket, uuid, bindPort) => {
   remoteSocket.on('data', (data) => {
