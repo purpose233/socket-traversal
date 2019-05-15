@@ -1,10 +1,14 @@
 const dgram = require('dgram');
 const TextEncoding = require('text-encoding');
-import {TunnelServerInfoType} from './constant';
+const {TunnelServerInfoType} = require('./constant');
 
 const decoder = new TextEncoding.TextDecoder('utf-8');
 
-export const createUdpSocket = (port, onListening, onError) => {
+const decodeMetaData = (metaData) => {
+  return metaData instanceof Uint8Array ? decoder.decode(metaData) : metaData;
+};
+
+const createUdpSocket = (port, onListening, onError) => {
   const socket = dgram.createSocket('udp4');
   socket.on('listening',
     onListening ? onListening :
@@ -22,7 +26,7 @@ export const createUdpSocket = (port, onListening, onError) => {
   return socket;
 };
 
-export const createClientTunnelSocket = (tunnelSockets, uuid, socketType,
+const createClientTunnelSocket = (tunnelSockets, uuid, socketType,
                                          bindPort, serverPort, serverIP) => {
   const tunnelSocket = Net.createConnection(serverPort, serverIP);
   handleSocketError(tunnelSocket);
@@ -45,13 +49,13 @@ export const createClientTunnelSocket = (tunnelSockets, uuid, socketType,
   return tunnelSocket;
 };
 
-export const handleSocketError = (socket) => {
+const handleSocketError = (socket) => {
   socket.on('error', (e) => {
     console.log(e);
   });
 };
 
-export const parseMsgWithMetaData = (msg) => {
+const parseMsgWithMetaData = (msg) => {
   if (msg instanceof Uint8Array) {
     msg = decoder.decode(msg);
   }
@@ -69,22 +73,23 @@ export const parseMsgWithMetaData = (msg) => {
   }
 };
 
-const decodeMetaData = (metaData) => {
-  return metaData instanceof Uint8Array ? decoder.decode(metaData) : metaData;
-};
-
-export const sendTcpInfo = (sender, info, metaData) => {
+const sendTcpInfo = (sender, info, metaData) => {
   metaData = decodeMetaData(metaData);
   const msg = JSON.stringify(info) + (metaData ? '|' + metaData : '');
   sender.write(msg);
 };
 
-export const sendTcpMetaData = (sender, metaData) => {
+const sendTcpMetaData = (sender, metaData) => {
   metaData = decodeMetaData(metaData);
   sender.write(metaData);
 };
 
-export const sendUdpMetaData = (sender, metaData, remotePort, remoteIP) => {
+const sendUdpMetaData = (sender, metaData, remotePort, remoteIP) => {
   metaData = decodeMetaData(metaData);
   sender.send(metaData, 0, metaData.length, remotePort, remoteIP);
+};
+
+module.exports = {
+  createUdpSocket, createClientTunnelSocket, handleSocketError,
+  parseMsgWithMetaData, sendTcpInfo, sendTcpMetaData, sendUdpMetaData
 };

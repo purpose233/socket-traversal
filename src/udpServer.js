@@ -1,7 +1,7 @@
 const _ = require('lodash');
-import {createUdpSocket, sendUdpMetaData} from './common/socket';
-import {EventType, SocketType} from './common/constant';
-import {logSocketData} from './common/log';
+const {createUdpSocket, sendUdpMetaData} = require('./common/socket');
+const {EventType, SocketType} = require('./common/constant');
+const {logSocketData} = require('./common/log');
 
 const createRemoteUdpServer = (eventEmitter, listenPort) => {
   const remoteServer = createUdpSocket(listenPort);
@@ -14,7 +14,7 @@ const createRemoteUdpServer = (eventEmitter, listenPort) => {
   });
 };
 
-export const createUdpProxies = (eventEmitter, proxies) => {
+const createUdpProxies = (eventEmitter, proxies) => {
   const remoteServers = {};
 
   for (let proxy of proxies) {
@@ -27,4 +27,8 @@ export const createUdpProxies = (eventEmitter, proxies) => {
   });
 
   return remoteServers;
+};
+
+module.exports = {
+  createUdpProxies
 };

@@ -1,4 +1,4 @@
-import {ConfigErrors} from './log';
+const {ConfigErrors} = require('./log');
 
 const getMetaConfig = (fileName) => {
   let metaConfig;
@@ -93,7 +93,7 @@ const getClientProxiesLocalPorts = (proxies) => {
   return proxies.map((item) => item.localPort);
 };
 
-export const parseServerConfig = (filePath) => {
+const parseServerConfig = (filePath) => {
   const metaConfig = getMetaConfig(filePath);
   if (typeof metaConfig.common !== 'object') {
     return ConfigErrors.MISSING_COMMON_CONFIG;
@@ -127,7 +127,7 @@ export const parseServerConfig = (filePath) => {
   };
 };
 
-export const parseClientConfig = (filePath) => {
+const parseClientConfig = (filePath) => {
   const metaConfig = getMetaConfig(filePath);
   if (typeof metaConfig.common !== 'object') {
     return ConfigErrors.MISSING_COMMON_CONFIG;
@@ -163,4 +163,8 @@ export const parseClientConfig = (filePath) => {
   return {
     serverPort, serverIP, tcpProxies, udpProxies
   };
+};
+
+module.exports = {
+  parseServerConfig, parseClientConfig
 };

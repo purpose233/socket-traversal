@@ -1,10 +1,16 @@
 const Net = require('net');
 const uuidv4 = require('uuid/v4');
-import {handleSocketError, parseMsgWithMetaData,
-  sendTcpMetaData, sendTcpInfo} from './common/socket';
-import {logSocketData} from './common/log';
-import {EventType, SocketType,
-  TunnelClientInfoType, TunnelServerInfoType} from './common/constant';
+const {
+  handleSocketError,
+  parseMsgWithMetaData,
+  sendTcpMetaData,
+  sendTcpInfo} = require('./common/socket');
+const {logSocketData} = require('./common/log');
+const {
+  EventType,
+  SocketType,
+  TunnelClientInfoType,
+  TunnelServerInfoType} = require('./common/constant');
 
 const pipeRemoteAndTunnelSocket = (remoteSocket, tunnelSocket, uuid, bindPort) => {
   remoteSocket.on('data', (data) => {
@@ -23,7 +29,7 @@ const pipeRemoteAndTunnelSocket = (remoteSocket, tunnelSocket, uuid, bindPort) =
   });
 };
 
-export const createTunnelServer = (eventEmitter, listenPort) => {
+const createTunnelServer = (eventEmitter, listenPort) => {
   // TODO: note that the amount of tunnelSocket might reach the limit.
 
   let tcpControlSocket = null;
@@ -159,4 +165,8 @@ export const createTunnelServer = (eventEmitter, listenPort) => {
 
   tunnelServer.listen(listenPort, '127.0.0.1');
   return tunnelServer;
+};
+
+module.exports = {
+  createTunnelServer
 };

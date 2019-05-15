@@ -1,8 +1,8 @@
 const program = require('commander');
-import {logConfigError} from './common/log';
-import {parseClientConfig} from './common/config';
-import {createTcpController} from './tcpClient';
-import {createUdpController} from './udpClient';
+const {logConfigError} = require('./common/log');
+const {parseClientConfig} = require('./common/config');
+const {createTcpController} = require('./tcpClient');
+const {createUdpController} = require('./udpClient');
 
 program.version('0.0.1');
 

@@ -1,14 +1,15 @@
 const Net = require('net');
 const _ = require('lodash');
-import {
+const {
   handleSocketError,
   parseMsgWithMetaData,
   sendTcpMetaData,
   sendTcpInfo,
   createClientTunnelSocket
-} from './common/socket';
-import {logSocketData} from './common/log';
-import {SocketType, TunnelClientInfoType, TunnelServerInfoType} from './common/constant';
+} = require('./common/socket');
+const {logSocketData} = require('./common/log');
+const {SocketType, TunnelClientInfoType,
+  TunnelServerInfoType} = require('./common/constant');
 
 const pipeTunnelAndDataTcpSocket = (tunnelSocket, dataSocket, uuid, bindPort) => {
   tunnelSocket.on('data', (data) => {
@@ -27,7 +28,7 @@ const pipeTunnelAndDataTcpSocket = (tunnelSocket, dataSocket, uuid, bindPort) =>
   });
 };
 
-export const createTcpController = (serverPort, serverIP, proxies) => {
+const createTcpController = (serverPort, serverIP, proxies) => {
   const tunnelSockets = {};
 
   // TODO: set interval time to reconnect
@@ -63,4 +64,8 @@ export const createTcpController = (serverPort, serverIP, proxies) => {
   });
 
   return tcpControlSocket;
+};
+
+module.exports = {
+  createTcpController
 };

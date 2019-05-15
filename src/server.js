@@ -1,10 +1,10 @@
 const program = require('commander');
 const EventEmitter = require('events').EventEmitter;
-import {parseServerConfig} from './common/config';
-import {logConfigError} from './common/log';
-import {createTunnelServer} from './tunnelServer';
-import {createTcpProxies} from './tcpServer';
-import {createUdpProxies} from './udpServer';
+const {parseServerConfig} = require('./common/config');
+const {logConfigError} = require('./common/log');
+const {createTunnelServer} = require('./tunnelServer');
+const {createTcpProxies} = require('./tcpServer');
+const {createUdpProxies} = require('./udpServer');
 
 program.version('0.0.1');
 

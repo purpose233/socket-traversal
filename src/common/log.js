@@ -1,4 +1,4 @@
-export const ConfigErrors = {
+const ConfigErrors = {
   INVALID_FILE: 'invalid file, please make sure the file path exists',
   INVALID_CONFIG: 'invalid config, please make sure the config is JSON',
   MISSING_COMMON_CONFIG: 'common config missing',
@@ -10,10 +10,14 @@ export const ConfigErrors = {
   MISSING_SERVER_IP: 'server ip missing or not valid'
 };
 
-export const logConfigError = (msg) => {
+const logConfigError = (msg) => {
   console.log('Config Error: ' + msg);
 };
 
-export const logSocketData = (data, socketName='A') => {
+const logSocketData = (data, socketName='A') => {
   console.log(socketName + ' socket receives data: ' + data);
+};
+
+module.exports = {
+  ConfigErrors, logConfigError, logSocketData
 };

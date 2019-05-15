@@ -1,14 +1,15 @@
 const _ = require('lodash');
-import {
+const {
   createClientTunnelSocket,
   createUdpSocket,
   handleSocketError,
   parseMsgWithMetaData,
   sendTcpInfo,
   sendUdpMetaData
-} from './common/socket';
-import {SocketType, TunnelClientInfoType, TunnelServerInfoType} from './common/constant';
-import {logSocketData} from './common/log';
+} = require('./common/socket');
+const {SocketType, TunnelClientInfoType,
+  TunnelServerInfoType} = require('./common/constant');
+const {logSocketData} = require('./common/log');
 
 // TODO: improve the random algorithm
 let randomPort = 20000;
@@ -37,7 +38,7 @@ const createUdpDataSocket = () => {
   return createUdpSocket(randomPort++);
 };
 
-export const createUdpController = (serverPort, serverIP, proxies) => {
+const createUdpController = (serverPort, serverIP, proxies) => {
   const tunnelSockets = {};
   // TODO: set interval time to reconnect
 
@@ -73,4 +74,8 @@ export const createUdpController = (serverPort, serverIP, proxies) => {
   });
 
   return udpControlSocket;
+};
+
+module.exports = {
+  createUdpController
 };
