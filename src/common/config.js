@@ -4,7 +4,9 @@ export const SocketType = {
 };
 
 export const EventType = {
-  RECEIVE_REMOTE_CONNECTION: 'remote'
+  RECEIVE_REMOTE_CONNECTION: 'remoteConnection',
+  RECEIVE_UDP_MESSAGE: 'receiveUdpMessage',
+  SEND_UDP_MESSAGE: 'sendUdpMessage'
 };
 
 export const TunnelServerInfoType = {

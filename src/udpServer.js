@@ -1,49 +1,28 @@
-const dgram = require('dgram');
 const _ = require('lodash');
-import config from '../test/server.json';
-import {createUdpSocket} from './common/socket';
+import {createUdpSocket, sendUdpMetaData} from './common/socket';
+import {EventType, SocketType} from './common/config';
+import {logSocketData} from './common/log';
 
-// TODO: need to parse config
-const ServerPort = config.common.bindPort;
-const ClientPort = config.common.clientPort;
-const UDPConfigs = config.udp;
+const createRemoteUdpServer = (eventEmitter, listenPort) => {
+  const remoteServer = createUdpSocket(listenPort);
 
-// binders contains the info of udpClient.
-const binders = {};
+  remoteServer.on('message', (msg, rinfo) => {
+    logSocketData(msg, 'UDP Remote');
 
-const mainSocket = createUdpSocket(ServerPort);
-
-// Main socket only receive message from udpClient.
-mainSocket.on('message', function (msg, rinfo) {
-  console.log('recv %s(%d bytes) from client %s:%d\n', msg, msg.length, rinfo.address, rinfo.port);
-
-  let bindInfo;
-  try {
-    bindInfo = JSON.parse(msg);
-  } catch (e) {
-    bindInfo = null;
-  }
-  if (bindInfo && bindInfo.bindTo && binders[bindInfo.bindTo]) {
-    binders[bindInfo.bindTo].remotePort = bindInfo.bindFrom;
-    binders[bindInfo.bindTo].remoteIP = rinfo.address;
-  }
-});
-
-for (const udpConfig of UDPConfigs) {
-  const dataSocket = createUdpSocket(udpConfig.listenPort);
-  dataSocket.on('message', function (msg, rinfo) {
-    const binder = binders[udpConfig.listenPort];
-    if (binder) { return; }
-    msg = JSON.stringify({
-      ip: binder.remoteIP,
-      port: binder.remotePort
-    }) + '|' + msg;
-    dataSocket.send(msg, 0, msg.length, addr.port, ClientPort);
+    eventEmitter.emit(EventType.RECEIVE_UDP_MESSAGE,
+      SocketType.UDP, rinfo.port, rinfo.address, listenPort);
   });
-  binders[udpConfig.listenPort] = {
-    // localPort: udpConfig.listenPort,
-    socket: dataSocket,
-    remotePort: 0,
-    remoteIP: null
-  };
-}
+};
+
+export const createUdpProxies = (eventEmitter, proxies) => {
+  const remoteServers = {};
+
+  for (let proxy of proxies) {
+    remoteServers[proxy.listenPort] = createRemoteUdpServer(eventEmitter, proxy.listenPort);
+  }
+
+  eventEmitter.on(EventType.SEND_UDP_MESSAGE, (bindPort, remotePort, remoteIP, metaData) => {
+    const server = remoteServers[bindPort];
+    sendUdpMetaData(server, metaData, remotePort, remoteIP);
+  });
+};

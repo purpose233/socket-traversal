@@ -1,5 +1,6 @@
 const dgram = require('dgram');
 const TextEncoding = require('text-encoding');
+import {SocketType, TunnelServerInfoType} from "./config";
 
 const decoder = new TextEncoding.TextDecoder('utf-8');
 
@@ -19,6 +20,29 @@ export const createUdpSocket = (port, onListening, onError) => {
   );
   socket.bind(port);
   return socket;
+};
+
+export const createClientTunnelSocket = (tunnelSockets, uuid, socketType,
+                                         bindPort, serverPort, serverIP) => {
+  const tunnelSocket = Net.createConnection(serverPort, serverIP);
+  handleSocketError(tunnelSocket);
+
+  tunnelSocket.on('close', () => {
+    delete tunnelSockets[uuid];
+  });
+
+  tunnelSocket.on('connect', () => {
+    const replyInfo = {
+      type: TunnelServerInfoType.TUNNEL,
+      bindPort, socketType,
+      uuid: null
+    };
+    sendTcpInfo(tunnelSocket, replyInfo);
+  });
+
+  tunnelSockets[uuid] = tunnelSocket;
+
+  return tunnelSocket;
 };
 
 export const handleSocketError = (socket) => {
@@ -45,22 +69,22 @@ export const parseMsgWithMetaData = (msg) => {
   }
 };
 
-// export const sendToAddress = (uuid, msg, source, address) => {
-//   const info = JSON.stringify({
-//     uuid,
-//     type: 'data'
-//   }) + '|' + decoder.decode(msg);
-//   source.send(info, 0, info.length, address.port, address.ip);
-// };
+const decodeMetaData = (metaData) => {
+  return metaData instanceof Uint8Array ? decoder.decode(metaData) : metaData;
+};
 
-export const sendWithMetaData = (sender, info, metaData) => {
-  // TODO: might add udp send
-  metaData = metaData instanceof Uint8Array ? decoder.decode(metaData) : metaData;
+export const sendTcpInfo = (sender, info, metaData) => {
+  metaData = decodeMetaData(metaData);
   const msg = JSON.stringify(info) + (metaData ? '|' + metaData : '');
   sender.write(msg);
 };
 
-export const sendMetaData = (sender, metaData) => {
-  metaData = metaData instanceof Uint8Array ? decoder.decode(metaData) : metaData;
+export const sendTcpMetaData = (sender, metaData) => {
+  metaData = decodeMetaData(metaData);
   sender.write(metaData);
+};
+
+export const sendUdpMetaData = (sender, metaData, remotePort, remoteIP) => {
+  metaData = decodeMetaData(metaData);
+  sender.send(metaData, 0, metaData.length, remotePort, remoteIP);
 };

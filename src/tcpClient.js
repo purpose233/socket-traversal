@@ -1,15 +1,20 @@
 const Net = require('net');
 const _ = require('lodash');
-
-import {handleSocketError, parseMsgWithMetaData, sendMetaData, sendWithMetaData} from './common/socket';
+import {
+  handleSocketError,
+  parseMsgWithMetaData,
+  sendTcpMetaData,
+  sendTcpInfo,
+  createClientTunnelSocket
+} from './common/socket';
 import {logSocketData} from './common/log';
 import {SocketType, TunnelClientInfoType, TunnelServerInfoType} from './common/config';
 
-const pipeTunnelSocketAndDataSocket = (tunnelSocket, dataSocket, uuid, bindPort) => {
+const pipeTunnelAndDataTcpSocket = (tunnelSocket, dataSocket, uuid, bindPort) => {
   tunnelSocket.on('data', (data) => {
     logSocketData(data, 'Tunnel');
     const {metaData} = parseMsgWithMetaData(data);
-    sendMetaData(dataSocket, metaData);
+    sendTcpMetaData(dataSocket, metaData);
   });
   dataSocket.on('data', (data) => {
     logSocketData(data, 'Data');
@@ -18,7 +23,7 @@ const pipeTunnelSocketAndDataSocket = (tunnelSocket, dataSocket, uuid, bindPort)
       type: TunnelServerInfoType.DATA,
       socketType: SocketType.TCP
     };
-    sendWithMetaData(tunnelSocket, info, data);
+    sendTcpInfo(tunnelSocket, info, data);
   });
 };
 
@@ -30,7 +35,7 @@ export const createTcpController = (serverPort, serverIP, proxies) => {
   handleSocketError(tcpControlSocket);
 
   tcpControlSocket.on('data', (data) => {
-    logSocketData(data, 'TcpControl');
+    logSocketData(data, 'TCP Control');
     const {info} = parseMsgWithMetaData(data);
     if (info.type === TunnelClientInfoType.CREATE_TUNNEL) {
       const proxy = _.find(proxies, {remotePort: info.bindPort});
@@ -38,27 +43,12 @@ export const createTcpController = (serverPort, serverIP, proxies) => {
         return;
       }
 
-      const tunnelSocket = Net.createConnection(serverPort, serverIP);
-      handleSocketError(tcpControlSocket);
-
-      tunnelSocket.on('close', () => {
-        delete tunnelSockets[info.uuid];
-      });
-
-      tunnelSocket.on('connect', () => {
-        const replyInfo = {
-          type: TunnelServerInfoType.TUNNEL,
-          bindPort: info.bindPort,
-          socketType: SocketType.TCP,
-          uuid: null
-        };
-        sendWithMetaData(tunnelSocket, replyInfo);
-      });
+      const tunnelSocket = createClientTunnelSocket(tunnelSockets, info.uuid,
+        SocketType.TCP, info.bindPort, serverPort, serverIP);
 
       const dataSocket = Net.createConnection(proxy.localPort, '127.0.0.1');
-      pipeTunnelSocketAndDataSocket(tunnelSocket, dataSocket,
+      pipeTunnelAndDataTcpSocket(tunnelSocket, dataSocket,
         info.uuid, info.bindPort);
-      tunnelSockets[info.uuid] = tunnelSocket;
     }
   });
 
@@ -69,7 +59,7 @@ export const createTcpController = (serverPort, serverIP, proxies) => {
       socketType: SocketType.TCP,
       uuid: null
     };
-    sendWithMetaData(tcpControlSocket, info);
+    sendTcpInfo(tcpControlSocket, info);
   });
 
   return tcpControlSocket;

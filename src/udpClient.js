@@ -1,46 +1,76 @@
-const dgram = require('dgram');
 const _ = require('lodash');
-import config from '../test/client.json';
-import {createUdpSocket} from './common/socket';
+import {
+  createClientTunnelSocket,
+  createUdpSocket,
+  handleSocketError,
+  parseMsgWithMetaData,
+  sendTcpInfo, 
+  sendUdpMetaData
+} from './common/socket';
+import {SocketType, TunnelClientInfoType, TunnelServerInfoType} from './common/config';
+import {logSocketData} from './common/log';
 
-// TODO: need to parse config
+// TODO: improve the random algorithm
+let randomPort = 20000;
 
-const ServerAddress = config.common.serverAddress;
-const ServerPort = config.common.serverPort;
-const UDPConfigs = config.udp;
+const pipeTunnelAndDataUdpSocket = (tunnelSocket, dataSocket,
+                                    uuid, bindPort, localPort) => {
+  tunnelSocket.on('data', (data) => {
+    logSocketData(data, 'Tunnel');
 
-for (const udpConfig of UDPConfigs) {
-
-}
-
-
-const clientSocket = createUdpSocket(clientSocket);
-
-const clientSocket = dgram.createSocket('udp4');
-
-clientSocket.on('message', function(msg, rinfo) {
-  console.log('recv %s(%d) from server\n', msg, msg.length);
-  let addr = JSON.parse(msg.slice(0, msg.indexOf('|')));
-  msg = msg.slice(msg.indexOf('|') + 1);
-
-  const dataSocket = dgram.createSocket('udp4');
-  dataSocket.on('message', function(msg, rinfo) {
-    console.log('recv %s from localhost\n', msg);
-    dataSocket.send(msg, 0, msg.length, addr.port, addr.ip);
+    const {metaData} = parseMsgWithMetaData(data);
+    sendUdpMetaData(dataSocket, metaData, localPort, '127.0.0.1');
   });
-  dataSocket.bind(8001);
-  dataSocket.send(msg, 0, msg.length, addr.port, 'localhost');
-});
-
-clientSocket.on('error', function(err) {
-  console.log('error, msg - %s, stack - %s\n', err.message, err.stack);
-});
-
-clientSocket.bind(8000);
-const bindInfo = {
-  bindTo: 7001,
-  bindFrom: 11111
+  dataSocket.on('message', (msg, rinfo) => {
+    logSocketData(msg, 'Data');
+    const info = {
+      uuid, bindPort,
+      type: TunnelServerInfoType.DATA,
+      socketType: SocketType.UDP
+    };
+    sendTcpInfo(tunnelSocket, info, msg);
+  });
 };
-const bindMsg = JSON.stringify(bindInfo);
-clientSocket.send(bindMsg, 0, bindMsg.length, 7000, 'localhost');
 
+const createUdpDataSocket = () => {
+  // TODO: retry bind a new port when createUdpSocket fails
+  return createUdpSocket(randomPort++);
+};
+
+export const createUdpController = (serverPort, serverIP, proxies) => {
+  const tunnelSockets = {};
+  // TODO: set interval time to reconnect
+
+  const udpControlSocket = Net.createConnection(serverPort, serverIP);
+  handleSocketError(udpControlSocket);
+
+  udpControlSocket.on('data', (data) => {
+    logSocketData(data, 'UDP Control');
+    const {info} = parseMsgWithMetaData(data);
+    if (info.type === TunnelClientInfoType.CREATE_TUNNEL) {
+      const proxy = _.find(proxies, {remotePort: info.bindPort});
+      if (!proxy || !proxy.localPort) {
+        return;
+      }
+
+      const tunnelSocket = createClientTunnelSocket(tunnelSockets, info.uuid,
+        SocketType.UDP, info.bindPort, serverPort, serverIP);
+
+      const dataSocket = createUdpDataSocket();
+      pipeTunnelAndDataUdpSocket(tunnelSocket, dataSocket,
+        info.uuid, info.bindPort, proxy.localPort);
+    }
+  });
+
+  udpControlSocket.on('connect', () => {
+    const info = {
+      type: TunnelServerInfoType.CONTROL,
+      bindPort: 0,
+      socketType: SocketType.UDP,
+      uuid: null
+    };
+    sendTcpInfo(udpControlSocket, info);
+  });
+
+  return udpControlSocket;
+};
