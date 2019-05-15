@@ -18,6 +18,25 @@ const logSocketData = (data, socketName='A') => {
   console.log(socketName + ' socket receives data: ' + data);
 };
 
+const logServerListening = (port, serverName='A') => {
+  console.log(serverName + ' server is listening on port ' + port);
+};
+
+const logSocketConnection = (remotePort, remoteIP, socketName='A') => {
+  console.log(socketName + ' socket connect to remote port ' +
+    remotePort + ' remote ip ' + remoteIP);
+};
+
+const logServerError = (error, port, serverName='A') => {
+  console.log(serverName + ' server on port ' + port +
+    ' occurs error: ' + error.message + ' stack: ' + error.stack);
+};
+
 module.exports = {
-  ConfigErrors, logConfigError, logSocketData
+  ConfigErrors,
+  logConfigError,
+  logSocketData,
+  logServerListening,
+  logSocketConnection,
+  logServerError
 };

@@ -1,3 +1,4 @@
+const fs = require('fs');
 const {ConfigErrors} = require('./log');
 
 const getMetaConfig = (fileName) => {
@@ -35,7 +36,7 @@ const isValidClientProxies = (proxies) => {
     return false;
   }
   for (const proxy of proxies) {
-    if (!isValidPort(proxy.listenPort) ||
+    if (!isValidPort(proxy.localPort) ||
       !isValidPort(proxy.remotePort)) {
       return false;
     }
@@ -95,6 +96,10 @@ const getClientProxiesLocalPorts = (proxies) => {
 
 const parseServerConfig = (filePath) => {
   const metaConfig = getMetaConfig(filePath);
+  if (typeof metaConfig !== 'object') {
+    return metaConfig;
+  }
+
   if (typeof metaConfig.common !== 'object') {
     return ConfigErrors.MISSING_COMMON_CONFIG;
   }
@@ -129,6 +134,10 @@ const parseServerConfig = (filePath) => {
 
 const parseClientConfig = (filePath) => {
   const metaConfig = getMetaConfig(filePath);
+  if (typeof metaConfig !== 'object') {
+    return metaConfig;
+  }
+
   if (typeof metaConfig.common !== 'object') {
     return ConfigErrors.MISSING_COMMON_CONFIG;
   }

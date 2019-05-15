@@ -1,6 +1,6 @@
 {
   "common": {
-    "bindPort": 7001
+    "bindPort": 7000
   },
   "tcp": [
     {

@@ -1,6 +1,8 @@
+const net = require('net');
 const dgram = require('dgram');
 const TextEncoding = require('text-encoding');
 const {TunnelServerInfoType} = require('./constant');
+const {logServerListening, logServerError} = require('./log');
 
 const decoder = new TextEncoding.TextDecoder('utf-8');
 
@@ -12,15 +14,13 @@ const createUdpSocket = (port, onListening, onError) => {
   const socket = dgram.createSocket('udp4');
   socket.on('listening',
     onListening ? onListening :
-      function() {
-        console.log("Server is listening on port %d.", port);
+      () => {
+    // logServerListening(port, 'Udp Remote');
       }
   );
   socket.on('error',
     onError ? onError :
-      function(err) {
-        console.log('error, msg - %s, stack - %s\n', err.message, err.stack);
-      }
+      (err) => {logServerError(err, port, 'Udp Remote');}
   );
   socket.bind(port);
   return socket;
@@ -28,7 +28,7 @@ const createUdpSocket = (port, onListening, onError) => {
 
 const createClientTunnelSocket = (tunnelSockets, uuid, socketType,
                                          bindPort, serverPort, serverIP) => {
-  const tunnelSocket = Net.createConnection(serverPort, serverIP);
+  const tunnelSocket = net.createConnection(serverPort, serverIP);
   handleSocketError(tunnelSocket);
 
   tunnelSocket.on('close', () => {
@@ -38,8 +38,7 @@ const createClientTunnelSocket = (tunnelSockets, uuid, socketType,
   tunnelSocket.on('connect', () => {
     const replyInfo = {
       type: TunnelServerInfoType.TUNNEL,
-      bindPort, socketType,
-      uuid: null
+      bindPort, socketType, uuid
     };
     sendTcpInfo(tunnelSocket, replyInfo);
   });
@@ -55,6 +54,7 @@ const handleSocketError = (socket) => {
   });
 };
 
+// TODO: add try..catch... so that when receiving wrong message program won't crash
 const parseMsgWithMetaData = (msg) => {
   if (msg instanceof Uint8Array) {
     msg = decoder.decode(msg);

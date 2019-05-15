@@ -1,15 +1,19 @@
-const Net = require('net');
+const net = require('net');
 const {handleSocketError} = require('./common/socket');
-const {EventType, SocketType} = require('./common/constant');
+const {EventType} = require('./common/constant');
+const {logServerListening} = require('./common/log');
 
 const createRemoteTcpServer = (eventEmitter, listenPort) => {
-  const remoteServer = Net.createServer(function (socket) {
+  const remoteServer = net.createServer(function (socket) {
     handleSocketError(socket);
 
     eventEmitter.emit(EventType.RECEIVE_REMOTE_CONNECTION, socket, listenPort);
   });
 
   remoteServer.listen(listenPort, '127.0.0.1');
+  logServerListening(listenPort, 'Tcp Remote');
+
+  return remoteServer;
 };
 
 const createTcpProxies = (eventEmitter, proxies) => {

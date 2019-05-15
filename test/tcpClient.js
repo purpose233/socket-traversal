@@ -1,4 +1,4 @@
-const Net = require('net');
+const net = require('net');
 const TextEncoding = require('text-encoding');
 
 const TunnelServerPort = 7001;
@@ -11,7 +11,7 @@ const decoder = new TextEncoding.TextDecoder('utf-8');
 const tunnelSockets = {};
 
 // TODO: set interval time to reconnect
-const mainClientSocket = Net.createConnection(TunnelServerPort, ServerIP);
+const mainClientSocket = net.createConnection(TunnelServerPort, ServerIP);
 
 // data: {type: 'createTunnel', uuid: int}
 mainClientSocket.on('data', (data) => {
@@ -19,7 +19,7 @@ mainClientSocket.on('data', (data) => {
   const receiveInfo = JSON.parse(decoder.decode(data));
   const uuid = receiveInfo.uuid;
 
-  const tunnelSocket = Net.createConnection(TunnelServerPort, ServerIP);
+  const tunnelSocket = net.createConnection(TunnelServerPort, ServerIP);
   tunnelSockets[uuid] = tunnelSocket;
   tunnelSocket.on('close', () => {
     delete tunnelSockets[uuid];
@@ -29,7 +29,7 @@ mainClientSocket.on('data', (data) => {
     tunnelSocket.write(JSON.stringify(replyInfo));
   });
 
-  const dataSocket = Net.createConnection(BindingPort, '127.0.0.1');
+  const dataSocket = net.createConnection(BindingPort, '127.0.0.1');
   tunnelSocket.pipe(dataSocket).pipe(tunnelSocket);
 });
 

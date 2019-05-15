@@ -1,11 +1,12 @@
-const Net = require('net');
+const net = require('net');
+const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
 const {
   handleSocketError,
   parseMsgWithMetaData,
   sendTcpMetaData,
   sendTcpInfo} = require('./common/socket');
-const {logSocketData} = require('./common/log');
+const {logSocketData, logServerListening} = require('./common/log');
 const {
   EventType,
   SocketType,
@@ -47,7 +48,7 @@ const createTunnelServer = (eventEmitter, listenPort) => {
   // msg: {msg, uuid, remotePort, remoteIP}
   const stashedMsgInfos = [];
 
-  const tunnelServer = Net.createServer((socket) => {
+  const tunnelServer = net.createServer((socket) => {
     handleSocketError(socket);
 
     // Used for tcp <--> tcp piping.
@@ -164,6 +165,8 @@ const createTunnelServer = (eventEmitter, listenPort) => {
   });
 
   tunnelServer.listen(listenPort, '127.0.0.1');
+  logServerListening(listenPort, 'Tunnel');
+
   return tunnelServer;
 };
 

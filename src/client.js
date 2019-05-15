@@ -6,7 +6,7 @@ const {createUdpController} = require('./udpClient');
 
 program.version('0.0.1');
 
-const filePath = '../test/client.json';
+const filePath = './test/client.json';
 
 const parseResult = parseClientConfig(filePath);
 if (typeof parseResult !== 'object') {

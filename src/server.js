@@ -15,7 +15,7 @@ program.version('0.0.1');
 //
 // program.parse(process.argv);
 
-const filePath = '../test/server.json';
+const filePath = './test/server.json';
 
 const parseResult = parseServerConfig(filePath);
 if (typeof parseResult !== 'object') {

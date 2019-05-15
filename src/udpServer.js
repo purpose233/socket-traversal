@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const {createUdpSocket, sendUdpMetaData} = require('./common/socket');
 const {EventType, SocketType} = require('./common/constant');
-const {logSocketData} = require('./common/log');
+const {logSocketData, logServerListening} = require('./common/log');
 
 const createRemoteUdpServer = (eventEmitter, listenPort) => {
   const remoteServer = createUdpSocket(listenPort);
@@ -10,8 +10,11 @@ const createRemoteUdpServer = (eventEmitter, listenPort) => {
     logSocketData(msg, 'UDP Remote');
 
     eventEmitter.emit(EventType.RECEIVE_UDP_MESSAGE,
-      SocketType.UDP, rinfo.port, rinfo.address, listenPort);
+      msg, rinfo.port, rinfo.address, listenPort);
   });
+
+  logServerListening(listenPort, 'Udp Remote');
+  return remoteServer;
 };
 
 const createUdpProxies = (eventEmitter, proxies) => {
@@ -21,7 +24,8 @@ const createUdpProxies = (eventEmitter, proxies) => {
     remoteServers[proxy.listenPort] = createRemoteUdpServer(eventEmitter, proxy.listenPort);
   }
 
-  eventEmitter.on(EventType.SEND_UDP_MESSAGE, (bindPort, remotePort, remoteIP, metaData) => {
+  eventEmitter.on(EventType.SEND_UDP_MESSAGE, (metaData, bindPort,
+                                               remotePort, remoteIP) => {
     const server = remoteServers[bindPort];
     sendUdpMetaData(server, metaData, remotePort, remoteIP);
   });

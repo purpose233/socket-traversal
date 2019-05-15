@@ -1,3 +1,4 @@
+const net = require('net');
 const _ = require('lodash');
 const {
   createClientTunnelSocket,
@@ -9,7 +10,7 @@ const {
 } = require('./common/socket');
 const {SocketType, TunnelClientInfoType,
   TunnelServerInfoType} = require('./common/constant');
-const {logSocketData} = require('./common/log');
+const {logSocketData, logSocketConnection} = require('./common/log');
 
 // TODO: improve the random algorithm
 let randomPort = 20000;
@@ -42,7 +43,8 @@ const createUdpController = (serverPort, serverIP, proxies) => {
   const tunnelSockets = {};
   // TODO: set interval time to reconnect
 
-  const udpControlSocket = Net.createConnection(serverPort, serverIP);
+  const udpControlSocket = net.createConnection(serverPort, serverIP);
+  logSocketConnection(serverPort, serverIP, 'Udp Control');
   handleSocketError(udpControlSocket);
 
   udpControlSocket.on('data', (data) => {

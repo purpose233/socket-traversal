@@ -1,4 +1,4 @@
-const Net = require('net');
+const net = require('net');
 const _ = require('lodash');
 const {
   handleSocketError,
@@ -7,9 +7,12 @@ const {
   sendTcpInfo,
   createClientTunnelSocket
 } = require('./common/socket');
-const {logSocketData} = require('./common/log');
-const {SocketType, TunnelClientInfoType,
-  TunnelServerInfoType} = require('./common/constant');
+const {logSocketData, logSocketConnection} = require('./common/log');
+const {
+  SocketType,
+  TunnelClientInfoType,
+  TunnelServerInfoType
+} = require('./common/constant');
 
 const pipeTunnelAndDataTcpSocket = (tunnelSocket, dataSocket, uuid, bindPort) => {
   tunnelSocket.on('data', (data) => {
@@ -32,7 +35,8 @@ const createTcpController = (serverPort, serverIP, proxies) => {
   const tunnelSockets = {};
 
   // TODO: set interval time to reconnect
-  const tcpControlSocket = Net.createConnection(serverPort, serverIP);
+  const tcpControlSocket = net.createConnection(serverPort, serverIP);
+  logSocketConnection(serverPort, serverIP, 'Tcp Control');
   handleSocketError(tcpControlSocket);
 
   tcpControlSocket.on('data', (data) => {
@@ -47,7 +51,7 @@ const createTcpController = (serverPort, serverIP, proxies) => {
       const tunnelSocket = createClientTunnelSocket(tunnelSockets, info.uuid,
         SocketType.TCP, info.bindPort, serverPort, serverIP);
 
-      const dataSocket = Net.createConnection(proxy.localPort, '127.0.0.1');
+      const dataSocket = net.createConnection(proxy.localPort, '127.0.0.1');
       pipeTunnelAndDataTcpSocket(tunnelSocket, dataSocket,
         info.uuid, info.bindPort);
     }

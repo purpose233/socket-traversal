@@ -1,4 +1,4 @@
-const Net = require('net');
+const net = require('net');
 const TextEncoding = require('text-encoding');
 
 const RemoteServerPort = 7000;
@@ -11,7 +11,7 @@ let mainClientSocket = null;
 const remoteSockets = {};
 const tunnelSockets = {};
 
-const remoteServer = Net.createServer(function (socket) {
+const remoteServer = net.createServer(function (socket) {
   socket.on('error', (e) => {console.log(e);});
 
   const socketId = UUID++;
@@ -26,7 +26,7 @@ const remoteServer = Net.createServer(function (socket) {
 
 remoteServer.listen(RemoteServerPort, '127.0.0.1');
 
-const tunnelServer = Net.createServer((socket) => {
+const tunnelServer = net.createServer((socket) => {
   let isPiping = false;
   socket.on('error', (e) => {console.log(e);});
   // data: {type: 'main'|'tunnel', uuid: int}
