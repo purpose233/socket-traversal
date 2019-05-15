@@ -4,9 +4,12 @@ const {parseClientConfig} = require('./common/config');
 const {createTcpController} = require('./tcpClient');
 const {createUdpController} = require('./udpClient');
 
-program.version('0.0.1');
+program
+  .version('0.0.1')
+  .option('-c, --config <file>', 'config file path')
+  .parse(process.argv);
 
-const filePath = './test/client.json';
+const filePath = program.config;
 
 const parseResult = parseClientConfig(filePath);
 if (typeof parseResult !== 'object') {

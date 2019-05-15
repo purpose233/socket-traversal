@@ -6,16 +6,12 @@ const {createTunnelServer} = require('./tunnelServer');
 const {createTcpProxies} = require('./tcpServer');
 const {createUdpProxies} = require('./udpServer');
 
-program.version('0.0.1');
+program
+  .version('0.0.1')
+  .option('-c, --config <file>', 'config file path')
+  .parse(process.argv);
 
-// program
-//   .option('-d, --debug', 'output extra debugging')
-//   .option('-s, --small', 'small pizza size')
-//   .option('-p, --pizza-type <type>', 'flavour of pizza');
-//
-// program.parse(process.argv);
-
-const filePath = './test/server.json';
+const filePath = program.config;
 
 const parseResult = parseServerConfig(filePath);
 if (typeof parseResult !== 'object') {
