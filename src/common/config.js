@@ -93,8 +93,8 @@ const getClientProxiesLocalPorts = (proxies) => {
   return proxies.map((item) => item.localPort);
 };
 
-export const parseServerConfig = (fileName) => {
-  const metaConfig = getMetaConfig(fileName);
+export const parseServerConfig = (filePath) => {
+  const metaConfig = getMetaConfig(filePath);
   if (typeof metaConfig.common !== 'object') {
     return ConfigErrors.MISSING_COMMON_CONFIG;
   }
@@ -127,8 +127,8 @@ export const parseServerConfig = (fileName) => {
   };
 };
 
-export const parseClientConfig = () => {
-  const metaConfig = getMetaConfig(fileName);
+export const parseClientConfig = (filePath) => {
+  const metaConfig = getMetaConfig(filePath);
   if (typeof metaConfig.common !== 'object') {
     return ConfigErrors.MISSING_COMMON_CONFIG;
   }

@@ -25,4 +25,6 @@ export const createUdpProxies = (eventEmitter, proxies) => {
     const server = remoteServers[bindPort];
     sendUdpMetaData(server, metaData, remotePort, remoteIP);
   });
+
+  return remoteServers;
 };

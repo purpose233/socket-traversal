@@ -1,20 +1,19 @@
-const fs = require('fs');
 const program = require('commander');
-import {ConfigErrors, logConfigError} from './common/log';
+import {logConfigError} from './common/log';
+import {parseClientConfig} from './common/config';
+import {createTcpController} from './tcpClient';
+import {createUdpController} from './udpClient';
 
 program.version('0.0.1');
 
-try {
-  const metaConfig = fs.readFileSync('../test/client.json', 'utf-8');
-} catch (e) {
-  // TODO: log error
-}
-let config;
-try {
-  config = JSON.parse(metaConfig);
-} catch (e) {
-  logConfigError(ConfigErrors.INVALID_CONFIG);
+const filePath = '../test/client.json';
+
+const parseResult = parseClientConfig(filePath);
+if (typeof parseResult !== 'object') {
+  return logConfigError(parseResult);
 }
 
-// TODO: check whether the config is valid
+const {serverPort, serverIP, tcpProxies, udpProxies} = parseResult;
 
+createTcpController(serverPort, serverIP, tcpProxies);
+createUdpController(serverPort, serverIP, udpProxies);

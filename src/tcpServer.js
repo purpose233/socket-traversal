@@ -13,7 +13,9 @@ const createRemoteTcpServer = (eventEmitter, listenPort) => {
 };
 
 export const createTcpProxies = (eventEmitter, proxies) => {
+  const remoteServers = {};
   for (let proxy of proxies) {
-    createRemoteTcpServer(eventEmitter, proxy.listenPort);
+    remoteServers[proxy.listenPort] = createRemoteTcpServer(eventEmitter, proxy.listenPort);
   }
+  return remoteServers;
 };

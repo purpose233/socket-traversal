@@ -1,6 +1,10 @@
-const fs = require('fs');
 const program = require('commander');
-import {ConfigErrors, logConfigError} from './common/log';
+const EventEmitter = require('events').EventEmitter;
+import {parseServerConfig} from './common/config';
+import {logConfigError} from './common/log';
+import {createTunnelServer} from './tunnelServer';
+import {createTcpProxies} from './tcpServer';
+import {createUdpProxies} from './udpServer';
 
 program.version('0.0.1');
 
@@ -11,20 +15,17 @@ program.version('0.0.1');
 //
 // program.parse(process.argv);
 
-try {
-  const metaConfig = fs.readFileSync('../test/server.json', 'utf-8');
-} catch (e) {
-  // TODO: log error
-}
-let config;
-try {
-  config = JSON.parse(metaConfig);
-} catch (e) {
-  logConfigError(ConfigErrors.INVALID_CONFIG);
+const filePath = '../test/server.json';
+
+const parseResult = parseServerConfig(filePath);
+if (typeof parseResult !== 'object') {
+  return logConfigError(parseResult);
 }
 
-const tcpProxies = metaConfig;
+const {bindPort, tcpProxies, udpProxies} = parseResult;
 
-// TODO: check whether the config is valid
+const eventEmitter = new EventEmitter();
 
-
+createTunnelServer(eventEmitter, bindPort);
+createTcpProxies(eventEmitter, tcpProxies);
+createUdpProxies(eventEmitter, udpProxies);
