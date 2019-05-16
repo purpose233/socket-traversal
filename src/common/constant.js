@@ -12,7 +12,8 @@ const EventType = {
 const TunnelServerInfoType = {
   CONTROL: 'control',
   TUNNEL: 'tunnel',
-  DATA: 'data'
+  DATA: 'data',
+  DELETE_UDP_SOCKET: 'deleteUdpSocket'
 };
 
 const TunnelClientInfoType = {

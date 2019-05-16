@@ -10,6 +10,7 @@ program
   .parse(process.argv);
 
 const filePath = program.config;
+const udpTimeout = 60;
 
 const parseResult = parseClientConfig(filePath);
 if (typeof parseResult !== 'object') {
@@ -19,4 +20,4 @@ if (typeof parseResult !== 'object') {
 const {serverPort, serverIP, tcpProxies, udpProxies} = parseResult;
 
 createTcpController(serverPort, serverIP, tcpProxies);
-createUdpController(serverPort, serverIP, udpProxies);
+createUdpController(serverPort, serverIP, udpProxies, udpTimeout);

@@ -32,7 +32,9 @@ const createClientTunnelSocket = (tunnelSockets, uuid, socketType,
   handleSocketError(tunnelSocket);
 
   tunnelSocket.on('close', () => {
-    delete tunnelSockets[uuid];
+    if (tunnelSockets[uuid]) {
+      delete tunnelSockets[uuid];
+    }
   });
 
   tunnelSocket.on('connect', () => {

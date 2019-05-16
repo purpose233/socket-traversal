@@ -15,12 +15,15 @@ const {logSocketData, logSocketConnection} = require('./common/log');
 // TODO: improve the random algorithm
 let randomPort = 20000;
 
+// TODO: need to reduce the number of parameter of pipeTunnelAndDataUdpSocket...
 const pipeTunnelAndDataUdpSocket = (tunnelSocket, dataSocket,
-                                    uuid, bindPort, localPort) => {
+                                    uuid, bindPort, localPort,
+                                    dataSocketInfos) => {
   tunnelSocket.on('data', (data) => {
     logSocketData(data, 'Tunnel');
 
     const {metaData} = parseMsgWithMetaData(data);
+    updateDataSocketTime(uuid, dataSocketInfos);
     sendUdpMetaData(dataSocket, metaData, localPort, '127.0.0.1');
   });
   dataSocket.on('message', (msg, rinfo) => {
@@ -30,6 +33,7 @@ const pipeTunnelAndDataUdpSocket = (tunnelSocket, dataSocket,
       type: TunnelServerInfoType.DATA,
       socketType: SocketType.UDP
     };
+    updateDataSocketTime(uuid, dataSocketInfos);
     sendTcpInfo(tunnelSocket, info, msg);
   });
 };
@@ -39,9 +43,40 @@ const createUdpDataSocket = () => {
   return createUdpSocket(randomPort++);
 };
 
-const createUdpController = (serverPort, serverIP, proxies) => {
+const updateDataSocketTime = (uuid, dataSocketInfos) => {
+  const dataSocketInfo = dataSocketInfos[uuid];
+  dataSocketInfo.lastTime = new Date().getTime();
+  dataSocketInfo.timeoutController.resetTimeout();
+};
+
+const dataSocketTimeout = (uuid, dataSocketInfos, tunnelSockets, udpTimeout) => {
+  const timeoutCb = () => {
+    tunnelSockets[uuid].close();
+    dataSocketInfos[uuid].socket.close();
+    // TODO: delete tunnelSockets[uuid] might not be necessary,
+    //  cuz it will be performed in onClose callback.
+    delete tunnelSockets[uuid];
+    delete dataSocketInfos[uuid];
+  };
+
+  let timeout = setTimeout(udpTimeout, timeoutCb);
+
+  const resetTimeout = () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(udpTimeout, timeoutCb);
+  };
+
+  return {
+    timeout, resetTimeout
+  };
+};
+
+const createUdpController = (serverPort, serverIP, proxies, udpTimeout) => {
   const tunnelSockets = {};
   // TODO: set interval time to reconnect
+
+  // item: {socket, timeout}
+  const dataSocketInfos = {};
 
   const udpControlSocket = net.createConnection(serverPort, serverIP);
   logSocketConnection(serverPort, serverIP, 'Udp Control');
@@ -50,18 +85,26 @@ const createUdpController = (serverPort, serverIP, proxies) => {
   udpControlSocket.on('data', (data) => {
     logSocketData(data, 'UDP Control');
     const {info} = parseMsgWithMetaData(data);
+    const uuid = info.uuid;
     if (info.type === TunnelClientInfoType.CREATE_TUNNEL) {
       const proxy = _.find(proxies, {remotePort: info.bindPort});
       if (!proxy || !proxy.localPort) {
         return;
       }
 
-      const tunnelSocket = createClientTunnelSocket(tunnelSockets, info.uuid,
+      const tunnelSocket = createClientTunnelSocket(tunnelSockets, uuid,
         SocketType.UDP, info.bindPort, serverPort, serverIP);
 
       const dataSocket = createUdpDataSocket();
-      pipeTunnelAndDataUdpSocket(tunnelSocket, dataSocket,
-        info.uuid, info.bindPort, proxy.localPort);
+      pipeTunnelAndDataUdpSocket(tunnelSocket, dataSocket, uuid,
+        info.bindPort, proxy.localPort, dataSocketInfos);
+
+      dataSocketInfos[uuid] = {
+        socket: dataSocket,
+        lastTime: new Date().getTime(),
+        timeoutController: dataSocketTimeout(uuid,
+          dataSocketInfos, tunnelSockets, udpTimeout)
+      };
     }
   });
 
