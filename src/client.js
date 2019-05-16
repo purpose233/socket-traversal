@@ -10,7 +10,7 @@ program
   .parse(process.argv);
 
 const filePath = program.config;
-const udpTimeout = 60;
+const udpTimeout = 10;
 
 const parseResult = parseClientConfig(filePath);
 if (typeof parseResult !== 'object') {

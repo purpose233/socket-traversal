@@ -51,7 +51,7 @@ const updateDataSocketTime = (uuid, dataSocketInfos) => {
 
 const dataSocketTimeout = (uuid, dataSocketInfos, tunnelSockets, udpTimeout) => {
   const timeoutCb = () => {
-    tunnelSockets[uuid].close();
+    tunnelSockets[uuid].end();
     dataSocketInfos[uuid].socket.close();
     // TODO: delete tunnelSockets[uuid] might not be necessary,
     //  cuz it will be performed in onClose callback.
@@ -59,11 +59,11 @@ const dataSocketTimeout = (uuid, dataSocketInfos, tunnelSockets, udpTimeout) => 
     delete dataSocketInfos[uuid];
   };
 
-  let timeout = setTimeout(udpTimeout, timeoutCb);
+  let timeout = setTimeout(timeoutCb, udpTimeout * 1000);
 
   const resetTimeout = () => {
     clearTimeout(timeout);
-    timeout = setTimeout(udpTimeout, timeoutCb);
+    timeout = setTimeout(timeoutCb, udpTimeout * 1000);
   };
 
   return {

@@ -74,6 +74,9 @@ const createTunnelServer = (eventEmitter, listenPort) => {
           tunnelSockets[uuid] = socket;
           socket.on('close', () => {
             delete tunnelSockets[uuid];
+            if (info.socketType === SocketType.UDP) {
+              delete remoteUdpSocketInfos[uuid];
+            }
           });
           if (info.socketType === SocketType.TCP) {
             const remoteSocketInfo = remoteTcpSocketInfos[uuid];
@@ -119,7 +122,7 @@ const createTunnelServer = (eventEmitter, listenPort) => {
     remoteSocket.on('close', () => {
       delete remoteTcpSocketInfos[uuid];
       const tunnelSocket = tunnelSockets[uuid];
-      tunnelSocket.close();
+      tunnelSocket.end();
       // No need to delete tunnelSocket from tunnelSockets,
       //  it will be performed by tunnelSocket's onClose callback.
     });
