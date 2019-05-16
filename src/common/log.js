@@ -32,11 +32,16 @@ const logServerError = (error, port, serverName='A') => {
     ' occurs error: ' + error.message + ' stack: ' + error.stack);
 };
 
+const logWarning = (msg) => {
+  console.log('warning: ' + msg);
+};
+
 module.exports = {
   ConfigErrors,
   logConfigError,
   logSocketData,
   logServerListening,
   logSocketConnection,
-  logServerError
+  logServerError,
+  logWarning
 };

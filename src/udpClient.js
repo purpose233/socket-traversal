@@ -10,9 +10,11 @@ const {
 } = require('./common/socket');
 const {SocketType, TunnelClientInfoType,
   TunnelServerInfoType} = require('./common/constant');
-const {logSocketData, logSocketConnection} = require('./common/log');
+const {logSocketData, logSocketConnection, logWarning} = require('./common/log');
 
 // TODO: improve the random algorithm
+const MIN_RANDOM_PORT = 20000;
+const MAX_RANDOM_PORT = 65535;
 let randomPort = 20000;
 
 // TODO: need to reduce the number of parameter of pipeTunnelAndDataUdpSocket...
@@ -38,9 +40,22 @@ const pipeTunnelAndDataUdpSocket = (tunnelSocket, dataSocket,
   });
 };
 
+const getNextRandomPort = () => {
+  if (randomPort >= MAX_RANDOM_PORT) {
+    randomPort = MIN_RANDOM_PORT;
+  }
+  return randomPort++;
+};
+
 const createUdpDataSocket = () => {
   // TODO: retry bind a new port when createUdpSocket fails
-  return createUdpSocket(randomPort++);
+  while (true) {
+    try {
+      return createUdpSocket(getNextRandomPort())
+    } catch (e) {
+      logWarning('port has been occupied, trying to bind a new one...');
+    }
+  }
 };
 
 const updateDataSocketTime = (uuid, dataSocketInfos) => {
