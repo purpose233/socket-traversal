@@ -1,14 +1,16 @@
 {
   "name": "socket-traversal",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "A tool for UDP/TCP internal network penetration.",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "bin": {
+    "st-client": "bin/client",
+    "st-server": "bin/server"
   },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/purpose233/socket-traversal.git"

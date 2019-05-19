@@ -14,7 +14,7 @@ npm install
 ## Usage
 Server side:
 ```
-node ./src/server.js -c <serverConfigFilePath>
+node ./src/server -c <serverConfigFilePath>
 ```
 A demo of server config file is shown as follow:
 ```json
@@ -37,7 +37,7 @@ A demo of server config file is shown as follow:
 
 Client side:
 ```
-node ./src/client.js -c <clientConfigFilePath>
+node ./src/client -c <clientConfigFilePath>
 ```
 A demo of client config file is shown as follow:
 ```json

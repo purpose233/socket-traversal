@@ -1,10 +1,12 @@
+#!/usr/bin/env node
+
 const program = require('commander');
 const EventEmitter = require('events').EventEmitter;
-const {parseServerConfig} = require('./common/config');
-const {logConfigError} = require('./common/log');
-const {createTunnelServer} = require('./tunnelServer');
-const {createTcpProxies} = require('./tcpServer');
-const {createUdpProxies} = require('./udpServer');
+const {parseServerConfig} = require('../lib/common/config');
+const {logConfigError} = require('../lib/common/log');
+const {createTunnelServer} = require('../lib/tunnelServer');
+const {createTcpProxies} = require('../lib/tcpServer');
+const {createUdpProxies} = require('../lib/udpServer');
 
 program
   .version('0.0.1')

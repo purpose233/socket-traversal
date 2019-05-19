@@ -1,8 +1,10 @@
+#!/usr/bin/env node
+
 const program = require('commander');
-const {logConfigError} = require('./common/log');
-const {parseClientConfig} = require('./common/config');
-const {createTcpController} = require('./tcpClient');
-const {createUdpController} = require('./udpClient');
+const {logConfigError} = require('../lib/common/log');
+const {parseClientConfig} = require('../lib/common/config');
+const {createTcpController} = require('../lib/tcpClient');
+const {createUdpController} = require('../lib/udpClient');
 
 program
   .version('0.0.1')
@@ -11,6 +13,7 @@ program
 
 const filePath = program.config;
 const udpTimeout = 10;
+const udpBindPortThreshold = 10000;
 
 const parseResult = parseClientConfig(filePath);
 if (typeof parseResult !== 'object') {
