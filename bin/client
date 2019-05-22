@@ -12,7 +12,7 @@ program
   .parse(process.argv);
 
 const filePath = program.config;
-const udpTimeout = 10;
+const udpTimeout = 60 * 5;
 const udpBindPortThreshold = 10000;
 
 const parseResult = parseClientConfig(filePath);
