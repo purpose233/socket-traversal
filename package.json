@@ -1,6 +1,6 @@
 {
   "name": "socket-traversal",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A tool for UDP/TCP internal network penetration.",
   "main": "index.js",
   "directories": {
